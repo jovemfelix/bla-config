@@ -17,7 +17,7 @@ spec:
         deployment: my-app
     spec:
       containers:
-      - image: image-registry.openshift-image-registry.svc:5000/cicd-workshop/my-app:v1.0.3
+      - image: image-registry.openshift-image-registry.svc:5000/cicd-workshop/my-app:8630a1e16162e6078830f63fd30fa6f4fe4358a5
         imagePullPolicy: IfNotPresent
         name: my-app
         ports:
