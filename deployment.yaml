@@ -2,32 +2,53 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  labels:
+    app: my-app
   name: my-app
 spec:
   replicas: 1
+  revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app: my-app
+      deployment: my-app
   template:
     metadata:
       labels:
-        app: my-app
+        deployment: my-app
     spec:
       containers:
-        - name: my-app
-          # Este tag será actualizado por nuestro Pipeline
-          image: image-registry.openshift-image-registry.svc:5000/cicd-workshop/my-app:latest
-          ports:
-            - containerPort: 80
+      - image: image-registry.openshift-image-registry.svc:5000/cicd-workshop/my-app:latest
+        imagePullPolicy: IfNotPresent
+        name: my-app
+        ports:
+        - containerPort: 8080
+          protocol: TCP
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: my-app-svc
-spec:
-  selector:
+  labels:
     app: my-app
+  name: my-app
+spec:
   ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
+  - name: 8080-tcp
+    port: 8080
+  selector:
+    deployment: my-app
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  labels:
+    app: my-app
+  name: my-app
+spec:
+  host: ''
+  port:
+    targetPort: 8080-tcp
+  to:
+    kind: Service
+    name: my-app
+    weight: 100
+  wildcardPolicy: None
